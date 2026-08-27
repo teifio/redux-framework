@@ -296,8 +296,8 @@ if ( ! class_exists( 'Redux_Slider', false ) ) {
 				$val_one = $this->value[0];
 				$val_two = $this->value[1];
 
-				$html  = 'data-default-one=' . $val_one . ' ';
-				$html .= 'data-default-two=' . $val_two . ' ';
+				$html  = 'data-default-one="' . esc_attr( $val_one ) . '" ';
+				$html .= 'data-default-two="' . esc_attr( $val_two ) . '"';
 
 				$name_one = $field_name . '[1]';
 				$name_two = $field_name . '[2]';
@@ -308,7 +308,7 @@ if ( ! class_exists( 'Redux_Slider', false ) ) {
 				$val_one = $this->value;
 				$val_two = '';
 
-				$html = 'data-default-one=' . $val_one;
+				$html = 'data-default-one="' . esc_attr( $val_one ) . '"';
 
 				$name_one = $field_name;
 				$name_two = '';
