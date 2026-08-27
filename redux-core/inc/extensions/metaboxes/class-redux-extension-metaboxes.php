@@ -1397,17 +1397,7 @@ if ( ! class_exists( 'Redux_Extension_Metaboxes', false ) ) {
 				$dont_save = false;
 			}
 
-			foreach ( Redux_Helpers::sanitize_array( wp_unslash( $_POST[ $this->parent->args['opt_name'] ] ) ) as $key => $value ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-
-				// Have to remove the escaping for array comparison.
-				if ( is_array( $value ) ) {
-					foreach ( $value as $k => $v ) {
-						if ( ! is_array( $v ) ) {
-							$value[ $k ] = wp_unslash( $v );
-						}
-					}
-				}
-
+			foreach ( Redux_Helpers::sanitize_array( wp_unslash( $_POST[ $this->parent->args['opt_name'] ] ) ) as $key => $value ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitized with `Redux_Helpers::sanitize_array`.
 				$save = true;
 
 				// parent_options.
