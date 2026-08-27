@@ -230,7 +230,7 @@ if ( ! class_exists( 'Redux_Media', false ) ) {
 
 			echo '<div class="screenshot" style="' . esc_attr( $hide ) . '">';
 			echo '<a class="of-uploaded-image" href="' . esc_url( $this->value['url'] ) . '" target="_blank">';
-			echo '<img class="redux-option-image" id="image_' . esc_attr( $this->field['id'] ) . '" src="' . esc_url( $this->value['thumbnail'] ) . '" alt="' . esc_attr( $alt ) . '" target="_blank" rel="external" style="' . $css . '" />'; // phpcs:ignore WordPress.Security.EscapeOutput
+			echo '<img class="redux-option-image" id="image_' . esc_attr( $this->field['id'] ) . '" src="' . esc_url( $this->value['thumbnail'] ) . '" alt="' . esc_attr( $alt ) . '" target="_blank" rel="external" style="' . esc_attr( $css ) . '" />';
 			echo '</a>';
 			echo '</div>';
 
@@ -334,7 +334,7 @@ if ( ! class_exists( 'Redux_Media', false ) ) {
 						$unit = 'deg';
 					}
 
-					$css .= ' ' . $filter . '(' . $values['value'] . $unit . ')';
+					$css .= ' ' . $filter . '(' . floatval( $values['value'] ) . $unit . ')';
 				}
 			}
 
