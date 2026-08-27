@@ -1015,7 +1015,7 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 
 			$field_args = Redux_Users::$fields[ $this->parent->args['opt_name'] ] ?? array();
 
-			foreach ( $_POST[ $this->parent->args['opt_name'] ] as $key => $value ) { // phpcs:ignore WordPress.Security
+			foreach ( Redux_Helpers::sanitize_array( wp_unslash( $_POST[ $this->parent->args['opt_name'] ] ) ) as $key => $value ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Sanitized with `Redux_Helpers::sanitize_array`.
 				$key = sanitize_text_field( wp_unslash( $key ) );
 
 				if ( ! isset( $field_args[ $key ] ) || $this->is_reserved_user_meta_key( $key ) ) {
@@ -1034,14 +1034,6 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 
 					if ( ! $can_save ) {
 						continue;
-					}
-				}
-
-				if ( is_array( $value ) ) {
-					foreach ( $value as $k => $v ) {
-						if ( ! is_array( $v ) ) {
-							$value[ $k ] = sanitize_text_field( wp_unslash( $v ) );
-						}
 					}
 				}
 
