@@ -75,6 +75,32 @@ if ( ! class_exists( 'Redux_Validation', false ) ) {
 								$plugin_options = $core->extensions[ $field['type'] ]->_validate_values( $plugin_options, $field, $sections );
 							}
 
+							// Default validation applied unless the field already defines 'validate' or 'validate_callback'.
+							$default_validation_by_type = array(
+								'spinner' => 'numeric',
+								'slider'  => 'numeric',
+								'color'  => 'color',
+								'date'  => 'date',
+							);
+
+							/**
+							 * Filter the map of field types to default validation methods.
+							 *
+							 * @param array  $default_validation_by_type Map of field types to default validation methods.
+							 * @param string $field_type                 Field type being validated.
+							 */
+
+							// phpcs:ignore WordPress.NamingConventions.ValidHookName
+							$default_validation_by_type = apply_filters( "redux/validate/{$core->args['opt_name']}/defaults_by_type", $default_validation_by_type, $field['type'] ?? '' );
+
+							if ( isset( $field['type'], $field['id'] )
+								&& ! isset( $field['validate'] )
+								&& ! isset( $field['validate_callback'] )
+								&& isset( $default_validation_by_type[ $field['type'] ] )
+							) {
+								$field['validate'] = $default_validation_by_type[ $field['type'] ];
+							}
+
 							// Make sure 'validate' field is set.
 							if ( isset( $field['validate'] ) ) {
 
@@ -112,15 +138,6 @@ if ( ! class_exists( 'Redux_Validation', false ) ) {
 											if ( ! isset( $field['validate_callback'] ) ) {
 												continue;
 											}
-										}
-									}
-
-									// Force validate of custom field types.
-									if ( isset( $field['type'] ) && ! isset( $val ) && ! isset( $field['validate_callback'] ) ) {
-										if ( 'color' === $field['type'] || 'color_gradient' === $field['type'] ) {
-											$val = 'color';
-										} elseif ( 'date' === $field['type'] ) {
-											$val = 'date';
 										}
 									}
 
