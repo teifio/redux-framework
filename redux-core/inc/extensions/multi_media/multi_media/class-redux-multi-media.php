@@ -107,7 +107,7 @@ if ( ! class_exists( 'Redux_Multi_Media' ) ) {
 					// hidden ID input.
 					$id_input = '<input
                                     type="hidden"
-                                    value="' . $url . '"
+                                    value="' . esc_attr( $url ) . '"
                                     name="' . esc_attr( $this->field['name'] . $this->field['name_suffix'] ) . '[' . intval( $id ) . ']"
                                     id="filelist-' . $id . '"
                                     class="" />';
