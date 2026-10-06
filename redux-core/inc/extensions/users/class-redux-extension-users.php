@@ -1074,9 +1074,7 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 				return false;
 			}
 
-			$check_user_id = sanitize_text_field( wp_unslash( $_POST['checkuser_id'] ?? get_current_user_id() ) );
-
-			$user       = sanitize_text_field( wp_unslash( $_POST['user_id'] ?? get_current_user_id() ) );
+			$user = sanitize_text_field( wp_unslash( $_POST['user_id'] ?? get_current_user_id() ) );
 			$this->meta = Redux_Users::get_user_meta( array( 'user' => $user ) );
 
 			$to_save    = array();
@@ -1097,7 +1095,7 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 					$can_save = false;
 
 					foreach ( (array) $field_args[ $key ]['permissions'] as $pv ) {
-						if ( user_can( $check_user_id, $pv ) ) {
+						if ( Redux_Helpers::current_user_can( $pv ) ) {
 							$can_save = true;
 							break;
 						}
