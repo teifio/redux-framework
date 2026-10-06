@@ -155,6 +155,9 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 			add_action( 'admin_notices', array( $this, 'meta_profiles_show_errors' ), 0 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 20 );
 
+			// phpcs:ignore WordPress.NamingConventions.ValidHookName
+			add_filter( "redux/{$this->parent->args['opt_name']}/localize", array( $this, 'restrict_localize_options' ) );
+
 			if ( is_admin() && in_array( $pagenow, $this->pagenows, true ) ) {
 				$this->init();
 
@@ -517,6 +520,70 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 				wp_localize_script( 'redux-extension-users', 'reduxUsers', $this->users_roles );
 
 			}
+		}
+
+		/**
+		 * Whether the current user may access the Redux panel.
+		 *
+		 * @return bool
+		 */
+		protected function can_access_panel(): bool {
+			$capability = $this->parent->args['page_permissions'] ?? 'manage_options';
+
+			if ( empty( $capability ) ) {
+				return false;
+			}
+
+			return Redux_Helpers::current_user_can( $capability );
+		}
+
+		/**
+		 * Restricts the localized option set on user profile pages for users without panel access.
+		 * Only the options for the fields rendered on the profile are included,
+		 * so the rest of the panel's option set is not exposed in the page source.
+		 *
+		 * @param array $localize_data Localized data.
+		 *
+		 * @return array
+		 */
+		public function restrict_localize_options( array $localize_data ): array {
+			global $pagenow;
+
+			if ( ! in_array( $pagenow, $this->pagenows, true ) ) {
+				return $localize_data;
+			}
+
+			if ( $this->can_access_panel() ) {
+				return $localize_data;
+			}
+
+			$profile_ids = array();
+
+			foreach ( (array) $this->profile_fields as $role_fields ) {
+				if ( is_array( $role_fields ) ) {
+					$profile_ids = array_merge( $profile_ids, array_keys( $role_fields ) );
+				}
+			}
+
+			$profile_ids = array_unique( $profile_ids );
+
+			foreach ( array( 'options', 'defaults' ) as $key ) {
+				if ( ! isset( $localize_data[ $key ] ) || ! is_array( $localize_data[ $key ] ) ) {
+					continue;
+				}
+
+				$restricted = array();
+
+				foreach ( $localize_data[ $key ] as $field_id => $value ) {
+					if ( in_array( $field_id, $profile_ids, true ) ) {
+						$restricted[ $field_id ] = $value;
+					}
+				}
+
+				$localize_data[ $key ] = $restricted;
+			}
+
+			return $localize_data;
 		}
 
 
