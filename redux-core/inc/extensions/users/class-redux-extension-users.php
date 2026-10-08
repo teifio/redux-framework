@@ -470,6 +470,10 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 
 			if ( in_array( $pagenow, $this->pagenows, true ) ) {
 
+				if ( empty( $this->profiles ) || ! is_array( $this->profiles ) ) {
+					return;
+				}
+
 				if ( 'user-new.php' === $pagenow ) {
 					$this->parent->args['disable_save_warn'] = true;
 				}
@@ -557,15 +561,7 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 				return $localize_data;
 			}
 
-			$profile_ids = array();
-
-			foreach ( (array) $this->profile_fields as $role_fields ) {
-				if ( is_array( $role_fields ) ) {
-					$profile_ids = array_merge( $profile_ids, array_keys( $role_fields ) );
-				}
-			}
-
-			$profile_ids = array_unique( $profile_ids );
+			$profile_ids = $this->get_visible_profile_field_ids();
 
 			foreach ( array( 'options', 'defaults' ) as $key ) {
 				if ( ! isset( $localize_data[ $key ] ) || ! is_array( $localize_data[ $key ] ) ) {
@@ -586,6 +582,62 @@ if ( ! class_exists( 'Redux_Extension_Users' ) ) {
 			return $localize_data;
 		}
 
+		/**
+		 * Collects the IDs of the profile fields that are rendered for the current user,
+		 * mirroring the visibility and permission checks that generate_profiles() applies.
+		 * Fields hidden from the current user are therefore not exposed in the localized option set either.
+		 *
+		 * @return array
+		 */
+		private function get_visible_profile_field_ids(): array {
+			$ids = array();
+
+			if ( empty( $this->profiles ) || ! is_array( $this->profiles ) ) {
+				return $ids;
+			}
+
+			foreach ( $this->profiles as $profile ) {
+				if ( empty( $profile['sections'] ) || ! is_array( $profile['sections'] ) ) {
+					continue;
+				}
+
+				if ( ! empty( $profile['permissions'] ) && ! Redux_Helpers::current_user_can( $profile['permissions'] ) ) {
+					continue;
+				}
+
+				foreach ( $profile['sections'] as $section ) {
+					if ( empty( $section['fields'] ) || ! is_array( $section['fields'] ) ) {
+						continue;
+					}
+
+					if ( ! $this->check_edit_visibility( $section ) ) {
+						continue;
+					}
+
+					if ( ! empty( $section['permissions'] ) && ! Redux_Helpers::current_user_can( $section['permissions'] ) ) {
+						continue;
+					}
+
+					foreach ( $section['fields'] as $field ) {
+						if ( empty( $field['id'] ) ) {
+							continue;
+						}
+
+						if ( ! $this->check_edit_visibility( $field ) ) {
+							continue;
+						}
+
+						if ( ! empty( $field['permissions'] ) && ! Redux_Helpers::current_user_can( $field['permissions'] ) ) {
+							continue;
+						}
+
+						$ids[ $field['id'] ] = true;
+					}
+				}
+			}
+
+			return array_keys( $ids );
+		}
 
 		/**
 		 * DEPRECATED
