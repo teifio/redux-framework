@@ -559,6 +559,10 @@ if ( ! class_exists( 'Redux_Users' ) ) {
 
 			$meta = get_user_meta( $user, $key, $single );
 
+			if ( ! $single && false === $meta ) {
+				$meta = array();
+			}
+
 			if ( $single ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement
 				// Do nothing.
 			} elseif ( ! empty( $meta ) ) {
